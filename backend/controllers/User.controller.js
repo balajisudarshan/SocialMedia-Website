@@ -19,17 +19,22 @@ const getAllUsers = async (req, res) => {
             $and: [
                 { _id: { $ne: currentUserId } },
                 { _id: { $nin: currentUser.blockedUsers || [] } },
+                { blockedUsers: { $ne: currentUserId } },
                 { userName: { $regex: search, $options: "i" } }
             ]
         })
-        .select("-password -blockedUsers")
-        .limit(limit)
-        .skip(skip)
-        .sort({ createdAt: -1 })
+            .select("-password -blockedUsers")
+            .limit(limit)
+            .skip(skip)
+            .sort({ createdAt: -1 })
 
         const totalUsers = await User.countDocuments({
-            _id: { $ne: currentUserId },
-            userName: { $regex: search, $options: "i" }
+            $and: [
+                { _id: { $ne: currentUserId } },
+                { _id: { $nin: currentUser.blockedUsers || [] } },
+                { blockedUsers: { $ne: currentUserId } },
+                { userName: { $regex: search, $options: "i" } }
+            ]
         })
 
         return res.status(200).json({

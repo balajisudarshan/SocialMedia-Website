@@ -3,21 +3,19 @@ const mongoose = require('mongoose')
 const relationSchema = new mongoose.Schema({
     sender:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"User"
+        ref:"User",
+        required:true
     },
-    reciever:{
+    receiver:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"User"
+        ref:"User",
+        required:true
     },
-    Status:{
+    status:{
         type:String,
         enum:["pending","accepted","rejected"],
         default:"pending"
-    },
-    createdAt:{
-        type:Date,
-        default:Date.now
     }
-})
+},{timestamps:true})
 
-module.exports = mongoose.model("Relation",relationSchema);
+module.exports = mongoose.model("Relation",relationSchema)
