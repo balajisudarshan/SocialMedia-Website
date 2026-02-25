@@ -134,9 +134,9 @@ const getMyConnections = async(req,res)=>{
     try{
         const userId = req.user
 
-        const user = await User.findById(userId).populate("following","userName,bio,skills avatar")
+        const user = await User.findById(userId).populate("following","userName bio skills avatar")
 
-        res.status(200).json(user.follwing)
+        res.status(200).json(user.following)
     }catch(err){
         console.log(err)
     }
