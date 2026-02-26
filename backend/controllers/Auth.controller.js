@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 const registerUser = async(req,res)=>{
-    const {userName,firstName,lastName,email,password,bio,skills} = req.body
+    const {userName,firstName,lastName,email,password,bio,skills,contactLinks} = req.body
     try {
 
         if(!userName || !firstName || !lastName || !email || !password){
@@ -108,4 +108,30 @@ const me = async(req,res)=>{
     }
 }
 
-module.exports = {registerUser,loginUser,me}
+const updateProfile = async(req,res)=>{
+    const id = req.user
+    try{
+        const {bio,skills,contactLinks} = req.body
+
+        const user = await User.findById(id);
+        if(!user){
+            return res.status(404).json({message:"User not found"})
+        }
+        if(bio !== undefined) {
+            user.bio = bio;
+        }
+        if(skills !== undefined){
+            user.skills = skills
+        }
+        if(contactLinks !== undefined){
+            user.contactLinks = contactLinks
+        }
+        await user.save();
+
+        return res.status(200).json({message:"User updated successfully"})
+    }catch(err){
+        console.log(err)
+    }
+}
+
+module.exports = {registerUser,loginUser,me,updateProfile}
