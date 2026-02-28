@@ -36,7 +36,7 @@ const getAllUsers = async (req, res) => {
                 { userName: { $regex: search, $options: "i" } }
             ]
         })
-
+        
         return res.status(200).json({
             page,
             totalPages: Math.ceil(totalUsers / limit),

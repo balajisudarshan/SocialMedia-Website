@@ -94,6 +94,49 @@ const sendProjectRequest = async (req, res) => {
     }
 }
 
+const manageProjectRequest = async(req,res)=>{
+    const {requestId,action} = req.params
+    const userId = req.user
+    const acceptedRequest = [
+        "accept",
+        "reject"
+    ]
+
+    try{
+        if(!acceptedRequest.includes(action)){
+            return res.status(400).json({message:"Invalid Action"})
+        }
+        const request = await ProjectRequestModel.findById(requestId).populate("project")
+        if(!request){
+            return res.status(404).json({message:"Request not found"})
+        }
+
+        if(request.project.owner.toString() !== userId){
+            return res.status(403).json({message:"Un-Authorized"})
+        }
+
+        
+
+        if(action === 'accept'){
+            await Project.findByIdAndUpdate(request.project._id,{
+                $addToSet:{members:request.requester}
+            })
+            request.status = 'accepted'
+        }
+        if(request === 'reject'){
+            request.status = 'rejected'
+        }
+
+        await request.save()
+
+        return res.status(200).json({message:`Request ${action}ed successfully`})
+    }catch(err){
+        console.log(err)
+        return res.status(500).json(err)
+    }
+}
+
+
 const getProjectRequests = async (req, res) => {
     const userId = req.user
     const projectId = req.params.id
@@ -116,6 +159,9 @@ const getProjectRequests = async (req, res) => {
     }
 }
 
+
+
+
 const getMyWork = async (req, res) => {
     const userId = req.user
     try {
@@ -131,4 +177,12 @@ const getMyWork = async (req, res) => {
     }
 }
 
-module.exports = { addProject, getAllProjects, getMyProjects, sendProjectRequest, getProjectRequests,getMyWork }
+module.exports = {
+    addProject,
+    getAllProjects,
+    getMyProjects,
+    sendProjectRequest,
+    getProjectRequests,
+    getMyWork,
+    manageProjectRequest,
+}
