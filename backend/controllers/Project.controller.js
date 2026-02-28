@@ -2,7 +2,7 @@ const Project = require('../models/Project.model')
 const ProjectRequestModel = require('../models/ProjectRequest.model')
 const User = require('../models/User.model')
 const generateProjectCode = require('../utils/generateProjectCode')
-const ProjectRequest = require('../models/ProjectRequest.model')
+// const ProjectRequest = require('../models/ProjectRequest.model')
 
 const addProject = async (req, res) => {
     const ownerId = req.user
@@ -89,9 +89,31 @@ const sendProjectRequest = async(req,res)=>{
         return res.status(201).json({message:"Join request sent"})
 
     }catch(err){
-
+        console.log(err)
+        return res.status(500).json(err)
     }
 }
 
+const getProjectRequests = async(req,res)=>{
+    const userId = req.user
+    const projectId = req.params.id
+    try{
+        const project = await Project.findById(projectId)
+        if(!project){
+            return res.status(404).json({message:"Project not found"})
+        }
+        if(project.owner.toString() !== userId){
+            return res.status(401).json({message:"Un-Authorized"})
+        }
+        const projectRequests = await ProjectRequestModel.find({
+            project:projectId,
+            status:"pending"
+        }).populate("requester","userName avatar")
+        return res.status(200).json({projectRequests})
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({err})
+    }
+}
 
-module.exports = {addProject,getAllProjects,getMyProjects}
+module.exports = {addProject,getAllProjects,getMyProjects,sendProjectRequest,getProjectRequests}
