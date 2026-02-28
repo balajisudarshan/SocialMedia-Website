@@ -94,48 +94,79 @@ const sendProjectRequest = async (req, res) => {
     }
 }
 
-const manageProjectRequest = async(req,res)=>{
-    const {requestId,action} = req.params
+const manageProjectRequest = async (req, res) => {
+    const { requestId, action } = req.params
     const userId = req.user
     const acceptedRequest = [
         "accept",
         "reject"
     ]
 
-    try{
-        if(!acceptedRequest.includes(action)){
-            return res.status(400).json({message:"Invalid Action"})
+    try {
+        if (!acceptedRequest.includes(action)) {
+            return res.status(400).json({ message: "Invalid Action" })
         }
         const request = await ProjectRequestModel.findById(requestId).populate("project")
-        if(!request){
-            return res.status(404).json({message:"Request not found"})
+        if (!request) {
+            return res.status(404).json({ message: "Request not found" })
         }
 
-        if(request.project.owner.toString() !== userId){
-            return res.status(403).json({message:"Un-Authorized"})
+        if (request.project.owner.toString() !== userId) {
+            return res.status(403).json({ message: "Un-Authorized" })
         }
 
-        
 
-        if(action === 'accept'){
-            await Project.findByIdAndUpdate(request.project._id,{
-                $addToSet:{members:request.requester}
+
+        if (action === 'accept') {
+            await Project.findByIdAndUpdate(request.project._id, {
+                $addToSet: { members: request.requester }
             })
             request.status = 'accepted'
         }
-        if(request === 'reject'){
+        if (request === 'reject') {
             request.status = 'rejected'
         }
 
         await request.save()
 
-        return res.status(200).json({message:`Request ${action}ed successfully`})
-    }catch(err){
+        return res.status(200).json({ message: `Request ${action}ed successfully` })
+    } catch (err) {
         console.log(err)
         return res.status(500).json(err)
     }
 }
 
+const removeUserFromProject = async (req, res) => {
+    const userId = req.user
+    const { projectId, memberId } = req.params
+    try {
+        if(!projectId || !memberId){
+            return res.status(404).json({message:"Project and members are required"})
+        }
+        const project = await Project.findById(projectId)
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" })
+        }
+        if (project.owner.toString() !== userId) {
+            return res.status(403).json({ message: "Unauthorized" })
+        }
+        if (project.owner.toString() === memberId) {
+            return res.status(400).json({ message: "Owner cannot remove HimSelf" })
+        }
+        await Project.findByIdAndUpdate(projectId, {
+            $pull: { members: memberId },
+        })
+        await ProjectRequestModel.findOneAndUpdate(
+            { project: projectId, requester: memberId },
+            { status: "removed" }
+        )
+
+        return res.status(200).json({ message: "Member Removed Successfully" })
+    } catch (err) {
+        return res.status(500).json(err)
+        console.log(err)
+    }
+}
 
 const getProjectRequests = async (req, res) => {
     const userId = req.user
@@ -166,14 +197,14 @@ const getMyWork = async (req, res) => {
     const userId = req.user
     try {
         const projects = await Project.find({
-            $or:[
-                {owner:userId},
-                {members:userId}
+            $or: [
+                { owner: userId },
+                { members: userId }
             ]
-        }) 
-        return res.status(200).json({projects})   
+        })
+        return res.status(200).json({ projects })
     } catch (err) {
-        return res.status(500).json({err})
+        return res.status(500).json({ err })
     }
 }
 
@@ -185,4 +216,5 @@ module.exports = {
     getProjectRequests,
     getMyWork,
     manageProjectRequest,
+    removeUserFromProject
 }
