@@ -36,84 +36,99 @@ const getAllProjects = async (req, res) => {
                     owner: { $in: connections }
                 },
                 {
-                    owner:req.user
+                    owner: req.user
                 }
             ]
         }
-        
-        ).populate("owner","userName avatar").sort({createdAt:-1})
-        return res.status(200).json({projects})
+
+        ).populate("owner", "userName avatar").sort({ createdAt: -1 })
+        return res.status(200).json({ projects })
     } catch (err) {
         console.log(err)
     }
 }
 
-const getMyProjects = async(req,res)=>{
+const getMyProjects = async (req, res) => {
     const userId = req.user
-    try{
-        const projects = await Project.find({owner:userId});
-        return res.json({projects})
-    }catch(err){
-        return res.status(500).json({err})
+    try {
+        const projects = await Project.find({ owner: userId });
+        return res.json({ projects })
+    } catch (err) {
+        return res.status(500).json({ err })
     }
 }
 
-const sendProjectRequest = async(req,res)=>{
+const sendProjectRequest = async (req, res) => {
     const userId = req.user
     const projectId = req.params.id
     const message = req.body
-    try{
+    try {
         const project = await Project.findById(projectId)
-        if(!project){
-            return res.status(404).json({message:"Project not found"})
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" })
         }
 
-        if(project.owner.toString() === userId){
-            return res.status(400).json({message:"You own this project"})
+        if (project.owner.toString() === userId) {
+            return res.status(400).json({ message: "You own this project" })
         }
 
         const existing = await ProjectRequestModel.findOne({
-            project:projectId,
-            requester:userId,
-            status:"pending"
+            project: projectId,
+            requester: userId,
+            status: "pending"
         })
-        if(existing){
-            return res.status(400).json({message:"Request already sent"})
+        if (existing) {
+            return res.status(400).json({ message: "Request already sent" })
         }
         await ProjectRequest.create({
-            project:projectId,
-            requester:userId,
+            project: projectId,
+            requester: userId,
             message
         })
-        
-        return res.status(201).json({message:"Join request sent"})
 
-    }catch(err){
+        return res.status(201).json({ message: "Join request sent" })
+
+    } catch (err) {
         console.log(err)
         return res.status(500).json(err)
     }
 }
 
-const getProjectRequests = async(req,res)=>{
+const getProjectRequests = async (req, res) => {
     const userId = req.user
     const projectId = req.params.id
-    try{
+    try {
         const project = await Project.findById(projectId)
-        if(!project){
-            return res.status(404).json({message:"Project not found"})
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" })
         }
-        if(project.owner.toString() !== userId){
-            return res.status(401).json({message:"Un-Authorized"})
+        if (project.owner.toString() !== userId) {
+            return res.status(401).json({ message: "Un-Authorized" })
         }
         const projectRequests = await ProjectRequestModel.find({
-            project:projectId,
-            status:"pending"
-        }).populate("requester","userName avatar")
-        return res.status(200).json({projectRequests})
-    }catch(err){
+            project: projectId,
+            status: "pending"
+        }).populate("requester", "userName avatar")
+        return res.status(200).json({ projectRequests })
+    } catch (err) {
         console.log(err)
+        return res.status(500).json({ err })
+    }
+}
+
+const getMyWork = async (req, res) => {
+    const userId = req.user
+    try {
+        const projects = await Project.find({
+            $or:[
+                {owner:userId},
+                {members:userId}
+            ]
+        }) 
+        return res.status(200).json({projects})   
+    } catch (err) {
         return res.status(500).json({err})
     }
 }
 
-module.exports = {addProject,getAllProjects,getMyProjects,sendProjectRequest,getProjectRequests}
+module.exports = { addProject, getAllProjects, getMyProjects, sendProjectRequest, getProjectRequests,getMyWork }
