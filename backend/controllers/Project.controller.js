@@ -156,7 +156,7 @@ const removeUserFromProject = async (req, res) => {
         await Project.findByIdAndUpdate(projectId, {
             $pull: { members: memberId },
         })
-        await ProjectRequestModel.findOneAndUpdate(
+        await ProjectRequestModel.findOnebyAndUpdate(
             { project: projectId, requester: memberId },
             { status: "removed" }
         )
