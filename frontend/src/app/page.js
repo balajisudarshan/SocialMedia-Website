@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react"
 import ProjectCard from "@/components/ProjectCard"
 import api from "@/lib/axios"
+import { Separator } from "@/components/ui/separator"
 import {
   Card,
   CardHeader,
@@ -14,7 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import useAuth from "@/hooks/useAuth"
+import { useAuth } from "@/context/AuthContext"
 import FeedSkeleton from "@/components/FeedSkeleton"
 
 const Page = () => {
@@ -24,7 +25,7 @@ const Page = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await api.get("/project")
+        const res = await api.get("/project/feed")
         console.log(res.data.projects)
         setProjects(res.data.projects)
       } catch (err) {
@@ -36,6 +37,9 @@ const Page = () => {
     fetchProjects()
   }, [])
 
+  
+
+
   return (
     <div className="min-h-screen bg-background text-foreground px-6 py-12">
       <div className="max-w-6xl mx-auto">
@@ -43,7 +47,7 @@ const Page = () => {
         <h1 className="text-4xl font-bold text-center mb-14">
           Explore Projects
         </h1>
-        {loading ? <FeedSkeleton/> :
+        {loading ? <FeedSkeleton /> :
           <div className="flex flex-wrap gap-10 justify-center">
             {projects.map((project) => {
 
@@ -55,6 +59,10 @@ const Page = () => {
         }
 
       </div>
+      <div className="flex justify-center">
+        <button className="text-center mt-5 hover:border-b-2 cursor-pointer transition-all">View all Projects {"-->"}</button>
+      </div>
+      <Separator className='mt-5'/>
     </div>
   )
 }

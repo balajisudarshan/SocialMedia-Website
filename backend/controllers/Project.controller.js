@@ -48,6 +48,26 @@ const getAllProjects = async (req, res) => {
     }
 }
 
+const getFeedProjects = async(req,res)=>{
+    const userId = req.user
+     try {
+        const projects = await Project.find({
+            status:"open",
+            visibility:"public",
+            owner:{$ne:userId},
+            members:{$ne:userId}
+        })
+        .populate("owner", "userName avatar")
+        .sort({ createdAt: -1 })
+        .limit(6)  
+
+        return res.status(200).json({ projects })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: "Server error" })
+    }
+}
+
 const getMyProjects = async (req, res) => {
     const userId = req.user
     try {
@@ -212,6 +232,7 @@ module.exports = {
     addProject,
     getAllProjects,
     getMyProjects,
+    getFeedProjects,
     sendProjectRequest,
     getProjectRequests,
     getMyWork,

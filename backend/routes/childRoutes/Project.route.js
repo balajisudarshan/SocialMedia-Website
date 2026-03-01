@@ -4,6 +4,7 @@ const {
     addProject,
     getAllProjects,
     getMyProjects,
+    getFeedProjects,
     sendProjectRequest,
     getProjectRequests,
     getMyWork,
@@ -15,6 +16,7 @@ const {
 router.post('/',authMiddleware,addProject)
 
 router.get('/',authMiddleware,getAllProjects);
+router.get('/feed',authMiddleware,getFeedProjects)
 router.get('/my',authMiddleware,getMyProjects)
 router.get('/my/work',authMiddleware,getMyWork)
 router.post('/request/:id',authMiddleware,sendProjectRequest)

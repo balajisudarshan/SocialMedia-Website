@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import useAuth from "@/hooks/useAuth"
+import {useAuth} from "@/context/AuthContext"
 import api from "@/lib/axios"
 
 export default function Navbar() {

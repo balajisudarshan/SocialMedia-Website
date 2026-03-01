@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import useAuth from "@/hooks/useAuth"
 const ProjectCard = ({ project, user }) => {
+    if(!user) return null
+
     const isOwner = project.owner._id === user.user.user._id
     const isMember = project?.members?.includes(user.user.user._id)
     return (
