@@ -75,9 +75,9 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer">
-                  <AvatarImage src={user.profilePic} />
+                  <AvatarImage src={user.user.profilePic} />
                   <AvatarFallback>
-                    {user.username?.charAt(0)}
+                    {user.user.userName?.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
