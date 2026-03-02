@@ -86,13 +86,17 @@ const Page = () => {
         </h1>
 
         <div className="flex flex-wrap gap-4 justify-center">
-          {users.map((user) => {
-            const visibleSkills = user.skills.slice(0, 2)
-            const remainingCount = user.skills.length - 2
-            return (
-              <UsersCard key={user._id} user={user} visibleSkills={visibleSkills} remainingCount={remainingCount} />
-            )
-          })}
+          {usersLoading ? <FeedSkeleton /> :
+            
+              users.map((user) => {
+                const visibleSkills = user.skills.slice(0, 2)
+                const remainingCount = user.skills.length - 2
+                return (
+                  <UsersCard key={user._id} user={user} visibleSkills={visibleSkills} remainingCount={remainingCount} />
+                )
+              })
+            
+          }
         </div>
       </section>
     </div>
