@@ -10,10 +10,11 @@ export default function Login(){
   const [email,setEmail] = useState("")
   const [password,setPassword] = useState("")
   const [error,setError] = useState("")
-  const [loading,setLoading] = useState(true)
+  const [loading,setLoading] = useState(false)
   const router = useRouter()
   const {fetchUser} = useAuth()
   async function handleLogin(e){
+    setLoading(true)
     e.preventDefault()
     try{
       await api.post("/auth/login",{
