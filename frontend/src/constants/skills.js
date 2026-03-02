@@ -15,6 +15,9 @@ export const SKILLS = [
   "Material UI",
   "Shadcn UI",
   "Framer Motion",
+  "Mern",
+  "Pern",
+  
 
   // Backend
   "Node.js",
@@ -129,5 +132,33 @@ export const SKILLS = [
   "Linux",
   "Postman",
   "Webpack",
-  "Vite"
+  "Vite",
+
+  // Web3 / Blockchain
+  "Solidity", "Web3.js", "Ethers.js", "Hardhat", "Smart Contracts", "IPFS",
+
+  // AI / Data (additions)
+  "LangChain", "Hugging Face", "Scikit-learn", "Ollama", "Stable Diffusion",
+  "Matplotlib", "Seaborn", "Jupyter Notebook",
+
+  // Backend / Infra additions
+  "tRPC", "gRPC", "WebSockets", "Kafka", "RabbitMQ", "Elasticsearch",
+
+  // DevOps additions
+  "Terraform", "Ansible", "Jenkins", "Prometheus", "Grafana",
+
+  // AR/VR & Graphics
+  "Three.js", "WebGL", "ARKit", "ARCore", "OpenXR",
+
+  // CMS
+  "Sanity", "Strapi", "Contentful", "WordPress",
+
+  // Design additions
+  "Illustrator", "Photoshop", "Spline", "Sketch",
+
+  // Missing Languages
+  "R", "Scala", "Elixir", "Lua", "Zig", "MATLAB",
+
+  // Security
+  "Cybersecurity", "Penetration Testing", "JWT", "OAuth",
 ]

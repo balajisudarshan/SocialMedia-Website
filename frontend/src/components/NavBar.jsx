@@ -112,7 +112,7 @@ export default function Navbar() {
                 </Button>
               </SheetTrigger>
 
-              <SheetContent side="right" className="flex flex-col gap-4 mt-10">
+              <SheetContent side="right" className="flex flex-col gap-4 mt-18 p-5">
 
                 {user && (
                   <>

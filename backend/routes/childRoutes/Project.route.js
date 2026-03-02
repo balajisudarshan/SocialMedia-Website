@@ -2,6 +2,7 @@ const router = require('express').Router()
 const authMiddleware = require('../../middleware/auth.js')
 const {
     addProject,
+    viewProject,
     getAllProjects,
     getMyProjects,
     getFeedProjects,
@@ -23,6 +24,7 @@ router.get('/my/work',authMiddleware,getMyWork)
 router.post('/request/:id',authMiddleware,sendProjectRequest)
 
 router.get('/:id/requests',authMiddleware,getProjectRequests)
+router.get('/:projectId',authMiddleware,viewProject)
 
 router.patch('/request/:requestId/:action',authMiddleware,manageProjectRequest)
 router.delete('/:projectId/members/:memberId',authMiddleware,removeUserFromProject)

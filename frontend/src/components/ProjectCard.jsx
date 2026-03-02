@@ -13,7 +13,7 @@ const ProjectCard = ({ project, user }) => {
     return (
         <Card
             key={project._id}
-            className="w-full md:w-[47%] lg:w-[45%] bg-card border rounded-2xl shadow-md hover:shadow-xl transition-all duration-300"
+        
         >
             <CardHeader className="space-y-2">
                 <div className="flex justify-between items-start">

@@ -4,16 +4,32 @@ const User = require('../models/User.model')
 const generateProjectCode = require('../utils/generateProjectCode')
 // const ProjectRequest = require('../models/ProjectRequest.model')
 
+const viewProject = async(req,res)=>{
+    const {projectId} = req.params
+    
+    try{
+        const project = await Project.findById(projectId)
+        if(!project){
+            return res.status(404).json({message:"Project not found"})
+        }
+        return res.status(200).json(project)
+    }catch(err){
+        console.log(err)
+
+        return res.status(500).json(err)
+    }
+}
+
 const addProject = async (req, res) => {
     const ownerId = req.user
 
     try {
-        const { projectName, description, techStack, tags } = req.body
+        const { projectName, description, techStack, tags,visibility } = req.body
         if (!projectName) {
             return res.status(404).json({ message: "Project name is required" })
         }
         const projectCode = await generateProjectCode()
-        const project = await Project.create({ projectName, projectCode, description, techStack, owner: ownerId })
+        const project = await Project.create({ projectName, projectCode, description, techStack,tags, owner: ownerId,visibility })
         return res.status(201).json({ message: "Project created successfully" })
     } catch (err) {
         console.log(err)
@@ -230,6 +246,7 @@ const getMyWork = async (req, res) => {
 
 module.exports = {
     addProject,
+    viewProject,
     getAllProjects,
     getMyProjects,
     getFeedProjects,

@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/context/AuthContext"
 import FeedSkeleton from "@/components/FeedSkeleton"
 import UsersCard from "@/components/UsersCard"
+import Link from "next/link"
 
 const Page = () => {
   const [projects, setProjects] = useState([])
@@ -69,7 +70,9 @@ const Page = () => {
             {projects.map((project) => {
 
               return (
-                <ProjectCard key={project._id} project={project} user={user} />
+                <Link key={project._id} href={`/projects/view/${project._id}`} className="w-full md:w-[47%] lg:w-[45%] bg-card border rounded-2xl shadow-md hover:shadow-xl transition-all duration-300">
+                  <ProjectCard  project={project} user={user} />
+                </Link>
               )
             })}
           </div>
@@ -87,15 +90,16 @@ const Page = () => {
 
         <div className="flex flex-wrap gap-4 justify-center">
           {usersLoading ? <FeedSkeleton /> :
-            
-              users.map((user) => {
-                const visibleSkills = user.skills.slice(0, 2)
-                const remainingCount = user.skills.length - 2
-                return (
-                  <UsersCard key={user._id} user={user} visibleSkills={visibleSkills} remainingCount={remainingCount} />
-                )
-              })
-            
+
+            users.map((user) => {
+              const visibleSkills = user.skills.slice(0, 2)
+              const remainingCount = user.skills.length - 2
+              return (
+
+                <UsersCard key={user._id} user={user} visibleSkills={visibleSkills} remainingCount={remainingCount} />
+              )
+            })
+
           }
         </div>
       </section>

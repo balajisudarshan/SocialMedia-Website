@@ -34,19 +34,19 @@ const UsersCard = ({user,visibleSkills,remainingCount}) => {
             <div className="flex justify-between mt-3">
                 <div className="flex gap-2 mt-2">
 
-                    {user.contactLinks.discord && (
+                    {user.contactLinks?.discord && (
                         <Button size="sm" variant="outline" className="flex items-center gap-2">
                             <MessageCircle size={16} />
                         </Button>
                     )}
 
-                    {user.contactLinks.linkedIn && (
+                    {user.contactLinks?.linkedIn && (
                         <Button size="sm" variant="outline" className="flex items-center gap-2 hover:bg-blue-600">
                             <Linkedin size={16} />
                         </Button>
                     )}
 
-                    {user.contactLinks.github && (
+                    {user.contactLinks?.github && (
                         <Button size="sm" variant="outline" className="flex items-center gap-2">
                             <Github size={16} />
                         </Button>
