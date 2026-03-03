@@ -8,7 +8,7 @@ const viewProject = async(req,res)=>{
     const {projectId} = req.params
     
     try{
-        const project = await Project.findById(projectId)
+        const project = await Project.findById(projectId).populate("owner","userName")
         if(!project){
             return res.status(404).json({message:"Project not found"})
         }

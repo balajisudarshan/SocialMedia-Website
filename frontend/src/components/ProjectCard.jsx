@@ -7,9 +7,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import useAuth from "@/hooks/useAuth"
 const ProjectCard = ({ project, user }) => {
     if(!user) return null
+    console.log(user)
 
-    const isOwner = project.owner._id === user.user.user._id
-    const isMember = project?.members?.includes(user.user.user._id)
+    const isOwner = project.owner._id === user.user._id
+    const isMember = project?.members?.includes(user.user._id)
     return (
         <Card
             key={project._id}
