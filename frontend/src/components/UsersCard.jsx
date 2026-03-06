@@ -1,12 +1,26 @@
+"use client"
 import React from 'react'
-import { Avatar,AvatarImage,AvatarFallback } from './ui/avatar'
+import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Linkedin, Github, MessageCircle, GitBranch } from "lucide-react"
-
-const UsersCard = ({user,visibleSkills,remainingCount}) => {
+import api from '@/lib/axios'
+import { toast } from 'sonner'
+const UsersCard = ({ user, visibleSkills, remainingCount,onReqSent }) => {
+    const sendRequest = async (userId) => {
+        try {
+            console.log(userId)
+            const res = await api.post(`/connection/send/${userId}`)
+            onReqSent(userId)
+            console.log(res)
+            toast.success("Request sent successfully")
+        } catch (error) {
+            console.log(error.response.data.message)
+            toast.error(error.response.data.message)
+        }
+    }
     return (
-        <div  className="w-full md:w-[45%] lg:w-[30%] p-6 bg-card border rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+        <div className="w-full md:w-[45%] lg:w-[30%] p-6 bg-card border rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
             <div className="flex items-start gap-4 ">
                 <Avatar className='h-14 w-14'>
                     <AvatarImage src={user.avatar} />
@@ -52,7 +66,7 @@ const UsersCard = ({user,visibleSkills,remainingCount}) => {
                         </Button>
                     )}
                 </div>
-                <Button>Connect</Button>
+                <Button onClick={() => sendRequest(user._id)} className="hover:bg-transparent hover:text-white hover:border-1 border-white cursor-pointer">Connect</Button>
             </div>
         </div>
     )

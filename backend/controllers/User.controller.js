@@ -1,5 +1,5 @@
 const User = require('../models/User.model')
-
+const Relations = require('../models/Relation.model')
 const getAllUsers = async (req, res) => {
     try {
         const currentUserId = req.user
@@ -15,11 +15,19 @@ const getAllUsers = async (req, res) => {
         const skip = (page - 1) * limit
         const search = req.query.search || ""
 
+        const pendingRequest = await Relations.find({
+            sender:currentUserId,
+            status:"pending"
+        }).select("receiver")
+
+        const requestedUserIds = pendingRequest.map(r => r.receiver)
+
         const users = await User.find({
             $and: [
                 { _id: { $ne: currentUserId } },
                 { _id: { $nin: currentUser.blockedUsers || [] } },
                 { blockedUsers: { $ne: currentUserId } },
+                {_id : {$nin:requestedUserIds}},
                 { userName: { $regex: search, $options: "i" } }
             ]
         })
@@ -48,4 +56,19 @@ const getAllUsers = async (req, res) => {
     }
 }
 
-module.exports = getAllUsers
+const getSingleUser = async(req,res)=>{
+    const {id} = req.params
+    try{
+        const user = await User.findById(id)
+        console.log(id)
+        if(!user){
+            return res.status(404).json({message:"User not found"})
+        }
+        return res.status(200).json({user})
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({err})
+    }
+}
+
+module.exports = {getAllUsers,getSingleUser}

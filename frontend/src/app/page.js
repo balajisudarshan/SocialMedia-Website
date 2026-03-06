@@ -114,6 +114,9 @@ const Page = () => {
                   user={userItem}
                   visibleSkills={visibleSkills}
                   remainingCount={remainingCount}
+                  onReqSent={(id)=>{
+                    setUsers(prev=>prev.filter(u => u._id !== id))
+                  }}
                 />
               )
             })

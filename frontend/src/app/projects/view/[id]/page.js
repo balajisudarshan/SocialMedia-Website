@@ -129,7 +129,7 @@ const Page = ({ params }) => {
                   key={member._id}
                   className="flex gap-3 p-3 bg-zinc-900 hover:bg-zinc-800 transition"
                 >
-                  <User2Icon className="w-4 h-4 text-zinc-400" />
+                  <User2Icon className="w h-4 text-zinc-400" />
                   <h1 className="text-sm text-zinc-300">{member.name}</h1>
                 </div>
               )):"No members"}

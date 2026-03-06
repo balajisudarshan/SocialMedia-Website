@@ -27,7 +27,7 @@ export default function Register() {
   const [selectedSkills, setSelectedSkills] = useState([])
   const [error, setError] = useState("")
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [loading,setLoading] = useState(true)
+  const [loading,setLoading] = useState(false)
   const dropdownRef = useRef(null)
   const router = useRouter()
   const { fetchUser } = useAuth()
