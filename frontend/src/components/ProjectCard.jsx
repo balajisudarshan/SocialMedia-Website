@@ -2,10 +2,15 @@ import React from 'react'
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter, CardContent } from './ui/card'
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-
+import api from '@/lib/axios'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import useAuth from "@/hooks/useAuth"
+
+
 const ProjectCard = ({ project, user }) => {
+
+    
+
     if(!user) return null
     console.log(user)
 
@@ -79,19 +84,7 @@ const ProjectCard = ({ project, user }) => {
                     </Avatar>
                     <p>{project?.owner?.userName} {isOwner ? "(You)" : ""}</p>
                 </div>
-                {isOwner ? (
-                    <Button size="sm" variant="outline" >
-                        View Project
-                    </Button>
-                ) : isMember ? (
-                    <Button size="sm" variant="outline" disabled>
-                        Member
-                    </Button>
-                ) : (
-                    <Button size="sm">
-                        Request to Join
-                    </Button>
-                )}
+               
             </CardFooter>
 
         </Card>

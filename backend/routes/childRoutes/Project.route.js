@@ -10,11 +10,13 @@ const {
     getProjectRequests,
     getMyWork,
     manageProjectRequest,
-    removeUserFromProject
+    removeUserFromProject,
+    getProjectStatus
 } = require('../../controllers/Project.controller.js')
 
 
 router.post('/',authMiddleware,addProject)
+router.get('/status/:id',authMiddleware,getProjectStatus)
 
 router.get('/',authMiddleware,getAllProjects);
 router.get('/feed',authMiddleware,getFeedProjects)
@@ -25,6 +27,7 @@ router.post('/request/:id',authMiddleware,sendProjectRequest)
 
 router.get('/:id/requests',authMiddleware,getProjectRequests)
 router.get('/:projectId',authMiddleware,viewProject)
+
 
 router.patch('/request/:requestId/:action',authMiddleware,manageProjectRequest)
 router.delete('/:projectId/members/:memberId',authMiddleware,removeUserFromProject)

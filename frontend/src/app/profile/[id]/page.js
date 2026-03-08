@@ -19,6 +19,8 @@ const Profile = ({ params }) => {
     fetchUser()
   }, [id])
 
+  
+
   if (!user) return null
 
   return (

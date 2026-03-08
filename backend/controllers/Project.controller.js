@@ -4,6 +4,25 @@ const User = require('../models/User.model')
 const generateProjectCode = require('../utils/generateProjectCode')
 // const ProjectRequest = require('../models/ProjectRequest.model')
 
+const getProjectStatus = async(req,res)=>{
+    const userId = req.user
+    const projectId = req.params.id
+    try {
+        const request = await ProjectRequestModel.findOne({
+            project: projectId,
+            requester: userId,
+        })
+
+        if(!request){
+            return res.status(200).json({status:null})
+        }
+        return res.status(200).json({status:request.status})
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({message:"Server error"})
+    }
+}
+
 const viewProject = async(req,res)=>{
     const {projectId} = req.params
     
@@ -116,7 +135,7 @@ const sendProjectRequest = async (req, res) => {
         if (existing) {
             return res.status(400).json({ message: "Request already sent" })
         }
-        await ProjectRequest.create({
+        await ProjectRequestModel.create({
             project: projectId,
             requester: userId,
             message
@@ -249,6 +268,7 @@ module.exports = {
     viewProject,
     getAllProjects,
     getMyProjects,
+    getProjectStatus,
     getFeedProjects,
     sendProjectRequest,
     getProjectRequests,
