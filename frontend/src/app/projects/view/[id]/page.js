@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar, User, Pencil, Trash2, ArrowLeft, User2Icon, Users } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
 
 const Page = ({ params }) => {
@@ -15,7 +16,7 @@ const Page = ({ params }) => {
   const [project, setProject] = useState(null)
   const [requestStatus, setRequestStatus] = useState(null)
   const [loading, setLoading] = useState(true)
-
+  const [requests, setRequests] = useState([])
   const fetchProject = async () => {
     const res = await api.get(`/project/${id}`)
     setProject(res.data)
@@ -25,13 +26,22 @@ const Page = ({ params }) => {
     const res = await api.get(`/project/status/${id}`)
     setRequestStatus(res.data.status)
   }
-
+  const getProjectRequests = async () => {
+    try {
+      const res = await api.get(`/project/${id}/requests`)
+      console.log("Project requests:", res.data.projectRequests)
+      setRequests(res.data?.projectRequests)
+    } catch (error) {
+      console.error(error)
+    }
+  }
   useEffect(() => {
     const loadData = async () => {
       try {
         await Promise.all([
           fetchProject(),
-          fetchRequestStatus()
+          fetchRequestStatus(),
+          getProjectRequests()
         ])
       } catch (err) {
         console.log(err)
@@ -209,19 +219,78 @@ const Page = ({ params }) => {
             <div className="overflow-y-auto max-h-64">
               {project.members.length > 0
                 ? project.members.map((member) => (
-                    <div
-                      key={member._id}
-                      className="flex gap-3 p-3 bg-zinc-900 hover:bg-zinc-800 transition"
-                    >
-                      <User2Icon className="w h-4 text-zinc-400" />
-                      <h1 className="text-sm text-zinc-300">{member.name}</h1>
-                    </div>
-                  ))
+                  <div
+                    key={member._id}
+                    className="flex gap-3 p-3 bg-zinc-900 hover:bg-zinc-800 transition"
+                  >
+                    <User2Icon className="w h-4 text-zinc-400" />
+                    <h1 className="text-sm text-zinc-300">{member.name}</h1>
+                  </div>
+                ))
                 : "No members"}
             </div>
           </div>
 
         </div>
+        {isOwner && (
+          <div className="flex-1 rounded-2xl border border-zinc-800/60 bg-zinc-900/40 backdrop-blur-sm min-h-64 mt-10">
+            <div className="flex items-center gap-2 px-5 py-4 border-b border-zinc-800/60">
+              <h2 className="text-md font-semibold text-white tracking-wide">
+                Requests
+              </h2>
+            </div>
+            <div>
+              <div>
+                {requests.length === 0 && (
+                  <p className="text-center text-muted-foreground p-5">
+                    No requests foreground
+                  </p>
+                )}
+
+                <div className="flex flex-col gap-4">
+                  {requests.map((request) => {
+                    return (
+                      <div className="p-3">
+                        <div className="flex items-center justify-between bg-zinc-900 hover:bg-zinc-800 transition rounded-xl p-4 border border-zinc-800">
+
+                          <div className="flex items-center gap-4">
+                            <Avatar className="h-10 w-10">
+                              <AvatarImage src={request?.requester?.avatar} />
+                              <AvatarFallback>
+                                {request?.requester?.userName?.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+
+                            <div className="flex flex-col">
+                              <h2 className="font-semibold text-white">
+                                {request?.requester?.userName}
+                              </h2>
+                              <p className="text-sm text-zinc-400 max-w-md">
+                                {request?.requester?.bio}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                              Accept
+                            </Button>
+                            <Button variant="outline" className="border-red-800 text-red-400 hover:bg-red-900/30">
+                              Reject
+                            </Button>
+                          </div>
+
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+        )}
       </div>
     </div>
   )

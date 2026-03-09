@@ -237,7 +237,7 @@ const getProjectRequests = async (req, res) => {
         const projectRequests = await ProjectRequestModel.find({
             project: projectId,
             status: "pending"
-        }).populate("requester", "userName avatar")
+        }).populate("requester", "userName avatar bio")
         return res.status(200).json({ projectRequests })
     } catch (err) {
         console.log(err)

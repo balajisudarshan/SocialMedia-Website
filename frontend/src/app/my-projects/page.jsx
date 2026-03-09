@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import api from "@/lib/axios"
+import { useRouter } from "next/navigation"
 import {
   Table,
   TableBody,
@@ -13,7 +14,7 @@ import {
 
 const MyProjects = () => {
   const [myProjects, setMyProjects] = useState([])
-
+  const router = useRouter()
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -51,7 +52,7 @@ const MyProjects = () => {
               </TableRow>
             ) : (
               myProjects.map((project) => (
-                <TableRow key={project._id}>
+                <TableRow key={project._id} onClick={() => router.push(`/projects/view/${project._id}`)}>
                   <TableCell className="font-medium">
                     {project.projectName}
                   </TableCell>

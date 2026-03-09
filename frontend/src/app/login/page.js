@@ -5,28 +5,37 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
 import { toast } from "sonner"
 import { Spinner } from "@/components/ui/spinner"
+
 export default function Login(){
-  
+
   const [email,setEmail] = useState("")
   const [password,setPassword] = useState("")
   const [error,setError] = useState("")
   const [loading,setLoading] = useState(false)
+
   const router = useRouter()
   const {fetchUser} = useAuth()
+
   async function handleLogin(e){
-    setLoading(true)
     e.preventDefault()
+    setLoading(true)
+
     try{
-      await api.post("/auth/login",{
-        email,
-        password
-      })
+      await api.post("/auth/login",{ email,password })
+
       await fetchUser()
+
+      toast.success("Login Successful")
+
       router.push("/")
-      toast.success("Login Successfull")
+
     }catch(err){
-      setError(err.response?.data?.message || "Login failed")
-      toast.error(err.response?.data?.message)
+
+      const message = err.response?.data?.message || "Login failed"
+
+      setError(message)
+      toast.error(message)
+
     }finally{
       setLoading(false)
     }
@@ -35,6 +44,7 @@ export default function Login(){
   return(
     <div className="flex justify-center items-center h-screen">
       <form onSubmit={handleLogin} className="space-y-4 w-80">
+
         <h1 className="text-2xl font-bold">Login</h1>
 
         <input
@@ -55,8 +65,9 @@ export default function Login(){
         {error && <p className="text-red-500">{error}</p>}
 
         <button className="bg-blue-600 text-white px-4 py-2 w-full" disabled={loading}>
-          {loading?<Spinner/>:"Login"}
+          {loading ? <Spinner/> : "Login"}
         </button>
+
       </form>
     </div>
   )

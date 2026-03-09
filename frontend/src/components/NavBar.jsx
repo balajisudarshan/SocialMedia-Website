@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 import {
   Sheet,
   SheetContent,
@@ -21,7 +22,7 @@ import api from "@/lib/axios"
 
 export default function Navbar() {
   const { user, loading } = useAuth()
-
+  const router = useRouter()
   const navLinks = [
     { label: "Feed", href: "/", private: true },
     { label: "Explore", href: "/explore", private: true },
@@ -32,8 +33,12 @@ export default function Navbar() {
   const logout = async () => {
     try {
       await api.post("/auth/logout")
+      router.replace("/login")
       window.location.reload()
-    } catch {}
+      
+    } catch {
+
+    }
   }
 
   const filteredLinks = navLinks.filter(
