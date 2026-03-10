@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Menu } from "lucide-react"
+import { Delete, Eye, Menu, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import {
@@ -19,9 +19,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/context/AuthContext"
 import api from "@/lib/axios"
-import { Inbox } from "lucide-react"
+import { Inbox, RefreshCcw } from "lucide-react"
+import { useEffect, useState } from "react"
+import { TooltipProvider, TooltipTrigger, Tooltip, TooltipContent } from "./ui/tooltip"
 export default function Navbar() {
   const { user, loading } = useAuth()
+  const [notificationLoading, setNotificationLoading] = useState(true)
+  const [notifications, setNotifications] = useState([])
   const router = useRouter()
   const navLinks = [
     { label: "Feed", href: "/", private: true },
@@ -44,6 +48,36 @@ export default function Navbar() {
   const filteredLinks = navLinks.filter(
     (link) => link.private === !!user
   )
+  const markAsRead = async(notificationId)=>{
+    try {
+      const {data} = await api.patch(`/notification/${notificationId}/read`)
+      console.log(data)
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((notification) =>
+          notification._id === notificationId
+            ? { ...notification, read: true }
+            : notification
+        )
+      );
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  }
+  const fetchNotifications = async () => {
+    try {
+      setNotificationLoading(true)
+      const { data } = await api.get("/notification")
+      setNotifications(data.notifications)
+      console.log(data)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setNotificationLoading(false)
+    }
+  }
+  useEffect(() => {
+    fetchNotifications()
+  }, [])
 
   return (
     <nav className="border-b sticky top-0 z-50 bg-background/80 backdrop-blur">
@@ -78,8 +112,95 @@ export default function Navbar() {
 
           {user && (
             <>
-              <Inbox className="text-sm" />
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Inbox className="text-sm" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="p-10 w-full sm:w-[400px] ">
+                  <div className="flex items-center justify-between border-b pb-3 mb-4">
+                    <h2 className="text-lg font-semibold tracking-tight">
+                      Inbox
+                    </h2>
 
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={fetchNotifications}
+                    >
+                      <RefreshCcw className={`h-4 w-4 ${notificationLoading ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {notifications.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-6">
+                        0 notifications to display
+                      </p>
+                    )}
+
+                    {notifications.map((notification) => {
+                      return (
+                        <div
+                          key={notification._id}
+                          className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted transition"
+                        >
+                          <Avatar className="h-9 w-9">
+                            <AvatarImage src={notification.sender?.avatar} />
+                            <AvatarFallback>
+                              {notification.sender?.userName?.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          <div className="flex flex-col flex-1 text-sm">
+                            <p className="font-medium">
+                              {notification.sender?.userName}
+                            </p>
+
+                            <p className="text-muted-foreground text-xs">
+                              {notification.message}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 ml-2">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-2 rounded-md hover:bg-accent transition"
+                                    onClick={()=>{markAsRead(notification._id),router.push('/requests')}}
+                                  >
+                                    <Eye className="h-4 w-4 text-muted-foreground" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>View</p>
+                                </TooltipContent>
+                              </Tooltip>
+
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button className="p-2 rounded-md hover:bg-destructive/20 transition">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Delete notification</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+
+                          </div>
+                          {!notification.read && (
+                            <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                          )}
+
+
+                        </div>
+                      )
+                    })}
+                  </div>
+                </SheetContent>
+              </Sheet>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar className="cursor-pointer">

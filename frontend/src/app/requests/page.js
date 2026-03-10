@@ -45,7 +45,7 @@ const Page = () => {
             const user = request.sender
 
             return (
-              <Link href={`/profile/${user._id}`}>
+              <Link href={`/profile/${user._id}`} key={request._id}>
                 <div
                   key={request._id}
                   className="flex items-center justify-between p-5 border rounded-xl bg-card shadow-sm hover:shadow-md transition"

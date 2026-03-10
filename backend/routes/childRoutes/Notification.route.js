@@ -1,7 +1,9 @@
 const router = require("express").Router()
-const { getNotifications } = require("../../controllers/Notification.controller")
-const { verifyToken } = require("../../middleware/auth.middleware")
+const { getNotifications,updateNotification } = require("../../controllers/Notification.controller")
+const authMiddleware = require('../../middleware/auth')
 
-router.get("/", verifyToken, getNotifications)
+
+router.get("/", authMiddleware, getNotifications)
+router.patch("/:notificationId/read", authMiddleware, updateNotification)
 
 module.exports = router
