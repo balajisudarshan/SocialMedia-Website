@@ -1,13 +1,13 @@
 const Relation = require('../models/Relation.model')
 const User = require('../models/User.model')
-
+const Notification = require('../models/Notification.model')
 const sendRequest = async (req, res) => {
 
     try {
         const sender = req.user
         const receiver = req.params.id
         console.log(receiver)
-        if (sender === receiver) {
+        if (sender.toString() === receiver.toString()) {
             return res.status(400).json({ message: "You cannot connect to yourself" })
         }
 
@@ -16,8 +16,10 @@ const sendRequest = async (req, res) => {
             return res.status(404).json({ message: "User not found" })
         }
         const alreadyRequestedUser = await Relation.findOne({
-            sender,
-            receiver,
+            $or: [
+                { sender, receiver },
+                { sender: receiver, receiver: sender }
+            ],
             status: "pending"
         })
         if (alreadyRequestedUser) {
@@ -34,11 +36,18 @@ const sendRequest = async (req, res) => {
         }
 
         await Relation.create({ sender, receiver })
+        await Notification.create({
+            receiver: receiver,
+            sender: sender,
+            type: "connection_request",
+            message: "You have a new connection request",
+        })
         res.status(200).json({ message: "Connection sent successfully" })
     } catch (err) {
         console.log(err)
     }
 }
+
 const viewRequest = async (req, res) => {
     try {
         const userId = req.user
@@ -61,14 +70,14 @@ const manageConnection = async (req, res) => {
             'reject'
         ]
         const connectionType = req.params.type
-        
+
         if (!allowedConnectionType.includes(connectionType)) {
             return res.status(400).json({ message: "Invalid Type" })
         }
         const request = await Relation.findOne({
-            _id:requestId,
-            receiver:userId,
-            status:"pending"
+            _id: requestId,
+            receiver: userId,
+            status: "pending"
         })
 
         if (!request) {
@@ -82,6 +91,12 @@ const manageConnection = async (req, res) => {
         }
 
         request.status = 'accepted';
+        await Notification.create({
+            receiver: request.sender,
+            sender: userId,
+            type: "connection_accepted",
+            message: "Your connection request has been accepted",
+        })
         await request.save()
 
         const senderId = request.sender;
@@ -108,37 +123,37 @@ const removeConnection = async (req, res) => {
         const currentUser = await User.findById(user)
         const isConnected = currentUser.following.includes(connectedId);
 
-        
-        if(!isConnected){
-            return res.status(404).json({message:"Connection not found"})
+
+        if (!isConnected) {
+            return res.status(404).json({ message: "Connection not found" })
         }
-        await User.findByIdAndUpdate(user,{
-            $pull:{following:connectedId,followers:connectedId}
+        await User.findByIdAndUpdate(user, {
+            $pull: { following: connectedId, followers: connectedId }
         })
-        await User.findByIdAndUpdate(connectedId,{
-            $pull:{following:user,followers:user}
+        await User.findByIdAndUpdate(connectedId, {
+            $pull: { following: user, followers: user }
         })
         await Relation.deleteMany({
-            $or:[
-                {sender:user,receiver:connectedId},
-                {sender:connectedId,receiver:user}
+            $or: [
+                { sender: user, receiver: connectedId },
+                { sender: connectedId, receiver: user }
             ]
         })
-        res.status(200).json({message:"Connection Removed"});
+        res.status(200).json({ message: "Connection Removed" });
     } catch (err) {
         console.log(err)
     }
 }
 
-const getMyConnections = async(req,res)=>{
-    try{
+const getMyConnections = async (req, res) => {
+    try {
         const userId = req.user
 
-        const user = await User.findById(userId).populate("following","userName bio skills avatar")
+        const user = await User.findById(userId).populate("following", "userName bio skills avatar")
 
         res.status(200).json(user.following)
-    }catch(err){
+    } catch (err) {
         console.log(err)
     }
 }
-module.exports = { sendRequest, viewRequest, manageConnection,removeConnection,getMyConnections }
+module.exports = { sendRequest, viewRequest, manageConnection, removeConnection, getMyConnections }

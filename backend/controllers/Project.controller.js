@@ -3,7 +3,7 @@ const ProjectRequestModel = require('../models/ProjectRequest.model')
 const User = require('../models/User.model')
 const generateProjectCode = require('../utils/generateProjectCode')
 // const ProjectRequest = require('../models/ProjectRequest.model')
-
+const Notification = require('../models/Notification.model')
 const getProjectStatus = async(req,res)=>{
     const userId = req.user
     const projectId = req.params.id
@@ -140,7 +140,14 @@ const sendProjectRequest = async (req, res) => {
             requester: userId,
             message
         })
+        await Notification.create({
+            receiver: project.owner,
+            sender: userId,
+            type: "project_request",
+            message: `You have a new project request for ${project.projectName}`,
+            referenceId: projectId,
 
+        })
         return res.status(201).json({ message: "Join request sent" })
 
     } catch (err) {
@@ -177,9 +184,23 @@ const manageProjectRequest = async (req, res) => {
                 $addToSet: { members: request.requester }
             })
             request.status = 'accepted'
+            await Notification.create({
+                receiver: request.requester,
+                sender: userId,
+                type: "project_request_accepted",
+                message: `Your request to join ${request.project.projectName} has been accepted`,
+                referenceId: request.project._id,
+            })
         }
-        if (request === 'reject') {
+        if (action === 'reject') {
             request.status = 'rejected'
+            await Notification.create({
+                receiver: request.requester,
+                sender: userId,
+                type: "project_request_rejected",
+                message: `Your request to join ${request.project.projectName} has been rejected`,
+                referenceId: request.project._id,
+            })
         }
 
         await request.save()
@@ -208,7 +229,7 @@ const removeUserFromProject = async (req, res) => {
         if (project.owner.toString() === memberId) {
             return res.status(400).json({ message: "Owner cannot remove HimSelf" })
         }
-        await Project.findByIdAndUpdate(projectId, {
+        await Project.findOneAndUpdate(projectId, {
             $pull: { members: memberId },
         })
         await ProjectRequestModel.findOnebyAndUpdate(

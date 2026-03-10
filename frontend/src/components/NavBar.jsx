@@ -17,9 +17,9 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {useAuth} from "@/context/AuthContext"
+import { useAuth } from "@/context/AuthContext"
 import api from "@/lib/axios"
-
+import { Inbox } from "lucide-react"
 export default function Navbar() {
   const { user, loading } = useAuth()
   const router = useRouter()
@@ -35,7 +35,7 @@ export default function Navbar() {
       await api.post("/auth/logout")
       router.replace("/login")
       window.location.reload()
-      
+
     } catch {
 
     }
@@ -77,36 +77,41 @@ export default function Navbar() {
           )}
 
           {user && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Avatar className="cursor-pointer">
-                  <AvatarImage src={user.user.profilePic} />
-                  <AvatarFallback>
-                    {user.user.userName?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
+            <>
+              <Inbox className="text-sm" />
 
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href={`/profile/${user.username}`}>
-                    My Profile
-                  </Link>
-                </DropdownMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Avatar className="cursor-pointer">
+                    <AvatarImage src={user.user.profilePic} />
+                    <AvatarFallback>
+                      {user.user.userName?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
 
-                <DropdownMenuItem asChild>
-                  <Link href="/my-projects">
-                    My Projects
-                  </Link>
-                </DropdownMenuItem>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href={`/profile/${user.username}`}>
+                      My Profile
+                    </Link>
+                  </DropdownMenuItem>
 
-                <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/my-projects">
+                      My Projects
+                    </Link>
+                  </DropdownMenuItem>
 
-                <DropdownMenuItem onClick={logout}>
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem onClick={logout}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           )}
 
           <div className="md:hidden">
