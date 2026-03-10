@@ -8,6 +8,7 @@ import { Calendar, User, Pencil, Trash2, ArrowLeft, User2Icon, Users } from "luc
 import { useAuth } from "@/context/AuthContext"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
+import { toast } from "sonner"
 
 const Page = ({ params }) => {
   const { user } = useAuth()
@@ -17,14 +18,25 @@ const Page = ({ params }) => {
   const [requestStatus, setRequestStatus] = useState(null)
   const [loading, setLoading] = useState(true)
   const [requests, setRequests] = useState([])
+  // const [reqType,setReqType] = useState("")
+  // const [reqId,setReqId] = useState('')
   const fetchProject = async () => {
-    const res = await api.get(`/project/${id}`)
-    setProject(res.data)
+    try {
+      const res = await api.get(`/project/${id}`)
+      setProject(res.data)
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   const fetchRequestStatus = async () => {
-    const res = await api.get(`/project/status/${id}`)
-    setRequestStatus(res.data.status)
+    try {
+      const res = await api.get(`/project/status/${id}`)
+      setRequestStatus(res.data.status)
+    } catch (error) {
+      console.log(error)
+    }
+
   }
   const getProjectRequests = async () => {
     try {
@@ -35,6 +47,19 @@ const Page = ({ params }) => {
       console.error(error)
     }
   }
+
+  const manageConnection = async (type, requestId) => {
+    try {
+      const res = await api.patch(`/project/request/${requestId}/${type}`);
+      console.log(res.data)
+      toast.success(`Request ${type}ed successfully!`)
+      setRequests((prev) => prev.filter((req) => req._id !== requestId))
+    } catch (err) {
+      console.log(err)
+      toast.error(`Failed to ${type} request.`)
+    }
+  }
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -177,12 +202,12 @@ const Page = ({ params }) => {
             <ul className="list-disc list-inside text-sm text-zinc-300 p-3 flex flex-col gap-3">
               <li className="text-muted-foreground">
                 Project Code :
-                <span className="text-white"> {project.projectCode}</span>
+                <span className="text-white"> {project?.projectCode}</span>
               </li>
 
               <li className="text-muted-foreground">
                 Status :
-                <span className="text-white"> {project.status}</span>
+                <span className="text-white"> {project?.status}</span>
               </li>
 
               <li className="text-muted-foreground">
@@ -194,7 +219,7 @@ const Page = ({ params }) => {
                 Tech Stack :
                 <span className="text-white">
                   {" "}
-                  {project.techStack.join(", ")}
+                  {project?.techStack?.join(", ")}
                 </span>
               </li>
 
@@ -202,7 +227,7 @@ const Page = ({ params }) => {
                 Tags :
                 <span className="text-white">
                   {" "}
-                  {project.tags.join(", ")}
+                  {project?.tags?.join(", ")}
                 </span>
               </li>
             </ul>
@@ -217,14 +242,14 @@ const Page = ({ params }) => {
             </div>
 
             <div className="overflow-y-auto max-h-64">
-              {project.members.length > 0
-                ? project.members.map((member) => (
+              {project?.members?.length > 0
+                ? project?.members?.map((member) => (
                   <div
                     key={member._id}
                     className="flex gap-3 p-3 bg-zinc-900 hover:bg-zinc-800 transition"
                   >
                     <User2Icon className="w h-4 text-zinc-400" />
-                    <h1 className="text-sm text-zinc-300">{member.name}</h1>
+                    <h1 className="text-sm text-zinc-300">{member.userName}</h1>
                   </div>
                 ))
                 : "No members"}
@@ -272,10 +297,10 @@ const Page = ({ params }) => {
                           </div>
 
                           <div className="flex gap-2">
-                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => manageConnection("accept", request._id)}>
                               Accept
                             </Button>
-                            <Button variant="outline" className="border-red-800 text-red-400 hover:bg-red-900/30">
+                            <Button variant="outline" className="border-red-800 text-red-400 hover:bg-red-900/30" onClick={() => manageConnection("reject", request._id)}>
                               Reject
                             </Button>
                           </div>
