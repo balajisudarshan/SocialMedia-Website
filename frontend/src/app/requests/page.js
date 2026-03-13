@@ -22,10 +22,15 @@ const Page = () => {
   }, [])
 
 
-  const manageRequest = (type, id) => {
-    console.log(type)
-    console.log(id)
-  }
+  const manageRequest = async (type, id) => {
+    try {
+      const result = await api.patch(`/project/request/${id}/${type}`)
+      console.log(result)
+    } catch (error) {
+      console.error(error)
+    }
+    }
+  
   return (
     <div className="min-h-screen bg-background px-6 py-10">
       <div className="max-w-3xl mx-auto">
@@ -45,54 +50,56 @@ const Page = () => {
             const user = request.sender
 
             return (
-              <Link href={`/profile/${user._id}`} key={request._id}>
-                <div
-                  key={request._id}
-                  className="flex items-center justify-between p-5 border rounded-xl bg-card shadow-sm hover:shadow-md transition"
-                >
-                  <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between p-5 border rounded-xl bg-card shadow-sm hover:shadow-md transition">
 
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={user.avatar} />
-                      <AvatarFallback>
-                        {user.userName?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                <Link href={`/profile/${user._id}`} className="flex items-center gap-4">
 
-                    <div>
-                      <h2 className="font-semibold text-lg">
-                        {user.userName}
-                      </h2>
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={user.avatar} />
+                    <AvatarFallback>
+                      {user.userName?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
 
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {user.bio}
-                      </p>
+                  <div>
+                    <h2 className="font-semibold text-lg">{user.userName}</h2>
 
-                      <div className="flex gap-2 mt-1 flex-wrap">
-                        {user.skills?.map((skill) => (
-                          <span
-                            key={skill}
-                            className="text-xs px-2 py-1 bg-zinc-800 rounded"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {user.bio}
+                    </p>
+
+                    <div className="flex gap-2 mt-1 flex-wrap">
+                      {user.skills?.map((skill) => (
+                        <span
+                          key={skill}
+                          className="text-xs px-2 py-1 bg-zinc-800 rounded"
+                        >
+                          {skill}
+                        </span>
+                      ))}
                     </div>
-
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button variant="outline" className='cursor-pointer' onClick={() => manageRequest('accept', request._id)}>
-                      Reject
-                    </Button>
+                </Link>
 
-                    <Button className='cursor-pointer'>
-                      Accept
-                    </Button>
-                  </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="cursor-pointer"
+                    onClick={() => manageRequest("reject", request._id)}
+                  >
+                    Reject
+                  </Button>
+
+                  <Button
+                    className="cursor-pointer"
+                    onClick={() => manageRequest("accept", request._id)}
+                  >
+                    Accept
+                  </Button>
                 </div>
-              </Link>
+
+              </div>
             )
           })}
         </div>

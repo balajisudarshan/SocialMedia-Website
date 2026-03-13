@@ -9,17 +9,20 @@ import { useAuth } from "@/context/AuthContext"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
 import { toast } from "sonner"
+// import Router from "next/navigation"
+import { useRouter } from "next/navigation"
 
 const Page = ({ params }) => {
   const { user } = useAuth()
   const { id } = use(params)
-
+  const router = useRouter()
   const [project, setProject] = useState(null)
   const [requestStatus, setRequestStatus] = useState(null)
   const [loading, setLoading] = useState(true)
   const [requests, setRequests] = useState([])
   // const [reqType,setReqType] = useState("")
   // const [reqId,setReqId] = useState('')
+  if(!user) router.push('/login')
   const fetchProject = async () => {
     try {
       const res = await api.get(`/project/${id}`)

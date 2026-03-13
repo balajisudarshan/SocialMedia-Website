@@ -16,8 +16,10 @@ const getAllUsers = async (req, res) => {
         const search = req.query.search || ""
 
         const pendingRequest = await Relations.find({
-            sender:currentUserId,
-            status:"pending"
+            $or:[
+                {sender:currentUserId},
+                {receiver:currentUserId}
+            ]
         }).select("receiver")
 
         const requestedUserIds = pendingRequest.map(r => r.receiver)
