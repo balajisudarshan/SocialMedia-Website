@@ -2,53 +2,68 @@ const Invitation = require("../models/Invitation.model")
 const Project = require("../models/Project.model")
 const User = require("../models/User.model")
 const Notification = require("../models/Notification.model")
-const sendInvite = async(req,res)=>{
-    const {projectId,userId} = req.body
+const sendInvite = async (req, res) => {
+    const { projectId, userId } = req.body
     const sender = req.user
-    try{
+    try {
         const project = await Project.findById(projectId)
-        if(!project){
-            return res.status(404).json({message:"Project not found"})
+        if (!project) {
+            return res.status(404).json({ message: "Project not found" })
         }
-        if(project.owner.toString() !== sender){
-            return res.status(403).json({message:"Only project owner can send invites"})
+        if (project.owner.toString() !== sender.toString()) {
+            return res.status(403).json({ message: "Only project owner can send invites" })
         }
 
         const receiver = await User.findById(userId)
-        if(!receiver){
-            return res.status(404).json({message:"User not found"})
+        if (!receiver) {
+            return res.status(404).json({ message: "User not found" })
         }
 
         const existingInvite = await Invitation.findOne({
             sender,
-            receiver:userId,
-            project:projectId,
-            status:"pending"
+            receiver: userId,
+            project: projectId,
+            status: "pending"
         })
 
-        if(existingInvite){
-            return res.status(400).json({message:"Invite already sent"})
+        if (existingInvite) {
+            return res.status(400).json({ message: "Invite already sent" })
         }
 
         const invite = new Invitation({
             sender,
-            receiver:userId,
-            project:projectId,
-            status:"pending"
+            receiver: userId,
+            project: projectId,
+            status: "pending"
         })
-        Notification.create({
-            receiver:userId,
+        await Notification.create({
+            receiver: userId,
             sender,
-            type:"project_invitation",
-            project:projectId,
-            referenceId:invite._id,
-            message:`You have been invited to join the project ${project.name}`
+            type: "project_invitation",
+            project: projectId,
+            referenceId: invite._id,
+            message: `You have been invited to join the project ${project.name}`
         })
 
         await invite.save()
-        return res.status(201).json({message:"Invite sent successfully"})
-    }catch(err){
-        return res.status(500).json({message:"Error sending invite"})
+        return res.status(201).json({ message: "Invite sent successfully" })
+    } catch (err) {
+        return res.status(500).json({ message: "Error sending invite" })
     }
 }
-module.exports = sendInvite
+
+const getInvites = async (req, res) => {
+    const user = req.user
+
+    try {
+        const invites = await Invitation.find({
+            receiver: user,
+        }).populate("sender","name email").populate("project","projectName")
+        return res.status(200).json({ invites })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json(err.message)
+    }
+}
+
+module.exports = { sendInvite, getInvites }

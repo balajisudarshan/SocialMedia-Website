@@ -22,7 +22,7 @@ const Page = ({ params }) => {
   const [requests, setRequests] = useState([])
   // const [reqType,setReqType] = useState("")
   // const [reqId,setReqId] = useState('')
-  if(!user) router.push('/login')
+  if (!user) router.push('/login')
   const fetchProject = async () => {
     try {
       const res = await api.get(`/project/${id}`)
@@ -237,11 +237,14 @@ const Page = ({ params }) => {
           </div>
 
           <div className="flex-1 rounded-xl border border-zinc-800/60 bg-zinc-900/40 backdrop-blur-sm min-h-64">
-            <div className="flex items-center gap-2 px-5 py-4 border-b border-zinc-800/60">
-              <Users className="w-4 h-4 text-zinc-400" />
-              <h2 className="text-sm font-semibold text-white tracking-wide">
-                Members
-              </h2>
+            <div className=" flex justify-between gap-2 px-5 py-4 border-b border-zinc-800/60">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-zinc-400" />
+                <h2 className="text-sm font-semibold text-white tracking-wide">
+                  Members
+                </h2>
+              </div>
+                {isOwner && <h3 className="text-2xl cursor-pointer hover:text-accent">+</h3>}
             </div>
 
             <div className="overflow-y-auto max-h-64">
