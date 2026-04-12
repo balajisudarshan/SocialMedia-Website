@@ -8,11 +8,12 @@ import { useAuth } from "@/context/AuthContext"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
 import { toast } from "sonner"
+import { useParams } from "next/navigation"
 import { useRouter } from "next/navigation"
 
-const Page = ({ params }) => {
+const Page = () => {
   const { user, loading: authLoading } = useAuth()
-  const { id } = params
+  const { id } = useParams()
   const router = useRouter()
   const [project, setProject] = useState(null)
   const [requestStatus, setRequestStatus] = useState(null)
