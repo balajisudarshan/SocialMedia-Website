@@ -29,7 +29,8 @@ export default function Navbar() {
 
   const navLinks = [
     { label: "Feed", href: "/", private: true },
-    { label: "Explore", href: "/explore", private: true },
+    { label: "Explore Projects", href: "/explore/projects", private: true },
+    { label: "Explore People", href: "/explore/people", private: true },
     { label: "Create Project", href: "/projects/create", private: true },
     { label: "Requests", href: "/requests", private: true }
   ]

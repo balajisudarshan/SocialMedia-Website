@@ -50,7 +50,7 @@ const Page = () => {
             const user = request.sender
 
             return (
-              <div className="flex items-center justify-between p-5 border rounded-xl bg-card shadow-sm hover:shadow-md transition">
+              <div key={request._id} className="flex items-center justify-between p-5 border rounded-xl bg-card shadow-sm hover:shadow-md transition">
 
                 <Link href={`/profile/${user._id}`} className="flex items-center gap-4">
 

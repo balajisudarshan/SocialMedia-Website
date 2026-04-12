@@ -1,6 +1,5 @@
 "use client"
 import React, { useEffect, useState } from "react"
-import { use } from "react"
 import api from "@/lib/axios"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -9,12 +8,11 @@ import { useAuth } from "@/context/AuthContext"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
 import { toast } from "sonner"
-// import Router from "next/navigation"
 import { useRouter } from "next/navigation"
 
 const Page = ({ params }) => {
-  const { user } = useAuth()
-  const { id } = use(params)
+  const { user, loading: authLoading } = useAuth()
+  const { id } = params
   const router = useRouter()
   const [project, setProject] = useState(null)
   const [requestStatus, setRequestStatus] = useState(null)
@@ -22,48 +20,60 @@ const Page = ({ params }) => {
   const [requests, setRequests] = useState([])
   // const [reqType,setReqType] = useState("")
   // const [reqId,setReqId] = useState('')
-  if (!user) router.push('/login')
-  const fetchProject = async () => {
-    try {
-      const res = await api.get(`/project/${id}`)
-      setProject(res.data)
-    } catch (err) {
-      console.log(err)
-    }
-  }
 
-  const fetchRequestStatus = async () => {
-    try {
-      const res = await api.get(`/project/status/${id}`)
-      setRequestStatus(res.data.status)
-    } catch (error) {
-      console.log(error)
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login")
     }
-
-  }
-  const getProjectRequests = async () => {
-    try {
-      const res = await api.get(`/project/${id}/requests`)
-      console.log("Project requests:", res.data.projectRequests)
-      setRequests(res.data?.projectRequests)
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  }, [authLoading, user, router])
 
   const manageConnection = async (type, requestId) => {
+    if (!requestId) {
+      toast.error("Unable to process request: missing request id")
+      return
+    }
+
     try {
-      const res = await api.patch(`/project/request/${requestId}/${type}`);
+      const res = await api.patch(`/project/request/${requestId}/${type}`)
       console.log(res.data)
       toast.success(`Request ${type}ed successfully!`)
-      setRequests((prev) => prev.filter((req) => req._id !== requestId))
+      setRequests((prev) => prev.filter((req) => req._id !== requestId && req.id !== requestId))
     } catch (err) {
       console.log(err)
-      toast.error(`Failed to ${type} request.`)
+      const message = err?.response?.data?.message || "Failed to process request."
+      toast.error(message)
     }
   }
 
   useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const res = await api.get(`/project/${id}`)
+        setProject(res.data)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
+    const fetchRequestStatus = async () => {
+      try {
+        const res = await api.get(`/project/status/${id}`)
+        setRequestStatus(res.data.status)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    const getProjectRequests = async () => {
+      try {
+        const res = await api.get(`/project/${id}/requests`)
+        console.log("Project requests:", res.data.projectRequests)
+        setRequests(res.data?.projectRequests)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     const loadData = async () => {
       try {
         await Promise.all([
@@ -103,6 +113,14 @@ const Page = ({ params }) => {
             Loading
           </p>
         </div>
+      </div>
+    )
+  }
+
+  if (!project) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-zinc-950 text-white">
+        <p className="text-zinc-400">Project not found or has been removed.</p>
       </div>
     )
   }
@@ -281,7 +299,7 @@ const Page = ({ params }) => {
                 <div className="flex flex-col gap-4">
                   {requests.map((request) => {
                     return (
-                      <div className="p-3">
+                      <div key={request._id} className="p-3">
                         <div className="flex items-center justify-between bg-zinc-900 hover:bg-zinc-800 transition rounded-xl p-4 border border-zinc-800">
 
                           <div className="flex items-center gap-4">
@@ -303,10 +321,10 @@ const Page = ({ params }) => {
                           </div>
 
                           <div className="flex gap-2">
-                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => manageConnection("accept", request._id)}>
+                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => manageConnection("accept", request._id || request.id)}>
                               Accept
                             </Button>
-                            <Button variant="outline" className="border-red-800 text-red-400 hover:bg-red-900/30" onClick={() => manageConnection("reject", request._id)}>
+                            <Button variant="outline" className="border-red-800 text-red-400 hover:bg-red-900/30" onClick={() => manageConnection("reject", request._id || request.id)}>
                               Reject
                             </Button>
                           </div>

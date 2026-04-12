@@ -20,7 +20,7 @@ const UsersCard = ({ user, visibleSkills, remainingCount,onReqSent }) => {
         }
     }
     return (
-        <div className="w-full md:w-[45%] lg:w-[30%] p-6 bg-card border rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+        <div className="w-full md:w-[45%] lg:w-[30%] p-6 bg-card border rounded-xl shadow-sm hover:shadow-lg hover:-translate-1 transition-all duration-300 flex flex-col justify-between">
             <div className="flex items-start gap-4 ">
                 <Avatar className='h-14 w-14'>
                     <AvatarImage src={user.avatar} />

@@ -1,14 +1,19 @@
 const router = require('express').Router()
+
 const authRouter = require('./childRoutes/Auth.route')
 const userRouter = require('./childRoutes/User.route')
 const relationRouter = require('./childRoutes/Relation.route')
 const projectRouter = require('./childRoutes/Project.route')
 const notificationRouter = require('./childRoutes/Notification.route')
 const invite = require('./childRoutes/Invite.route')
+const seedRouter = require('./Seed.route')
+
 router.use('/auth', authRouter)
 router.use('/user', userRouter)
-router.use('/connection',relationRouter)
-router.use('/project',projectRouter)
+router.use('/connection', relationRouter)
+router.use('/project', projectRouter)
 router.use('/notification', notificationRouter)
-router.use('/invite', invite )
+router.use('/invite', invite)
+router.use('/seed', seedRouter)
+
 module.exports = router

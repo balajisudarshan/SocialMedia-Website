@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const Project = require('../models/Project.model')
 const ProjectRequestModel = require('../models/ProjectRequest.model')
 const User = require('../models/User.model')
@@ -57,6 +58,9 @@ const addProject = async (req, res) => {
 
 
 const getAllProjects = async (req, res) => {
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const skip = (page - 1) * limit
     const me = await User.findById(req.user).select("followers following")
 
 
@@ -76,8 +80,8 @@ const getAllProjects = async (req, res) => {
             ]
         }
 
-        ).populate("owner", "userName avatar").sort({ createdAt: -1 })
-        return res.status(200).json({ projects })
+        ).populate("owner", "userName avatar").sort({ createdAt: -1 }).skip(skip).limit(limit)
+        return res.status(200).json({ projects,currentPage:page,totalPages:Math.ceil(projects.length/limit) })
     } catch (err) {
         console.log(err)
     }
@@ -167,6 +171,9 @@ const manageProjectRequest = async (req, res) => {
     try {
         if (!acceptedRequest.includes(action)) {
             return res.status(400).json({ message: "Invalid Action" })
+        }
+        if (!mongoose.Types.ObjectId.isValid(requestId)) {
+            return res.status(400).json({ message: "Invalid request ID" })
         }
         const request = await ProjectRequestModel.findById(requestId).populate("project")
         if (!request) {
