@@ -1,7 +1,6 @@
 "use client"
 import React, { useState, useEffect, use } from "react"
 import api from "@/lib/axios"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const Profile = ({ params }) => {
   const { id } = use(params)
@@ -19,90 +18,102 @@ const Profile = ({ params }) => {
     fetchUser()
   }, [id])
 
-  
-
-  if (!user) return null
+  if (!user) return (
+    <div className="h-screen flex items-center justify-center text-zinc-400">
+      Loading profile...
+    </div>
+  )
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        <Card className="sm:col-span-2 lg:col-span-2 hover:shadow-xl transition">
-          <CardHeader>
-            <CardTitle className="text-xl">{user.userName}</CardTitle>
-          </CardHeader>
+    <div className="min-h-screen bg-black text-white">
 
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              {user.firstName} {user.lastName}
-            </p>
+      <div className="h-40 bg-gradient-to-r from-blue-600 to-purple-600" />
 
-            <p className="text-sm leading-relaxed break-words">
-              {user.bio}
-            </p>
-          </CardContent>
-        </Card>
+      <div className="max-w-4xl mx-auto px-4">
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Followers</CardTitle>
-          </CardHeader>
+        <div className="flex flex-col items-center -mt-16">
 
-          <CardContent className="text-2xl font-bold">
-            {user.followers.length}
-          </CardContent>
-        </Card>
+          <div className="w-32 h-32 rounded-full bg-zinc-800 border-4 border-black flex items-center justify-center text-3xl font-bold">
+            {user.userName?.charAt(0)}
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Following</CardTitle>
-          </CardHeader>
+          <h1 className="mt-4 text-2xl font-semibold">
+            {user.userName}
+          </h1>
 
-          <CardContent className="text-2xl font-bold">
-            {user.following.length}
-          </CardContent>
-        </Card>
+          <p className="text-zinc-400 text-sm">
+            {user.firstName} {user.lastName}
+          </p>
 
-        <Card className="sm:col-span-2 lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Skills</CardTitle>
-          </CardHeader>
+          <div className="flex gap-6 mt-4 text-sm">
+            <div>
+              <span className="font-semibold">{user.followers.length}</span> Followers
+            </div>
+            <div>
+              <span className="font-semibold">{user.following.length}</span> Following
+            </div>
+          </div>
 
-          <CardContent className="flex flex-wrap gap-2">
-            {user.skills.map((skill, i) => (
-              <span
-                key={i}
-                className="px-3 py-1 bg-muted rounded-md text-xs sm:text-sm"
+          <p className="mt-4 text-center text-zinc-300 max-w-xl">
+            {user.bio || "No bio available"}
+          </p>
+
+        </div>
+
+        <div className="mt-10 border-t border-zinc-800 pt-6">
+
+          <h2 className="text-lg font-semibold mb-3">Skills</h2>
+
+          <div className="flex flex-wrap gap-2">
+            {user.skills.length === 0 ? (
+              <p className="text-zinc-500">No skills added</p>
+            ) : (
+              user.skills.map((skill, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 text-sm bg-zinc-800 rounded-full hover:bg-zinc-700 transition"
+                >
+                  {skill}
+                </span>
+              ))
+            )}
+          </div>
+
+        </div>
+
+        <div className="mt-10 border-t border-zinc-800 pt-6">
+
+          <h2 className="text-lg font-semibold mb-3">Links</h2>
+
+          <div className="flex flex-col gap-2 text-sm">
+
+            {user?.contactLinks?.github && (
+              <a
+                href={user.contactLinks.github}
+                target="_blank"
+                className="text-blue-400 hover:underline"
               >
-                {skill}
-              </span>
-            ))}
-          </CardContent>
-        </Card>
+                GitHub
+              </a>
+            )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Github</CardTitle>
-          </CardHeader>
+            {user?.contactLinks?.linkedIn && (
+              <a
+                href={user.contactLinks.linkedIn}
+                target="_blank"
+                className="text-blue-400 hover:underline"
+              >
+                LinkedIn
+              </a>
+            )}
 
-          <CardContent className="text-sm break-all">
-            <a href={user.contactLinks.github} target="_blank">
-              {user.contactLinks.github}
-            </a>
-          </CardContent>
-        </Card>
+            {!user?.contactLinks?.github && !user?.contactLinks?.linkedIn && (
+              <p className="text-zinc-500">No links available</p>
+            )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>LinkedIn</CardTitle>
-          </CardHeader>
+          </div>
 
-          <CardContent className="text-sm break-all">
-            <a href={user.contactLinks.linkedIn} target="_blank">
-              {user.contactLinks.linkedIn}
-            </a>
-          </CardContent>
-        </Card>
+        </div>
 
       </div>
     </div>

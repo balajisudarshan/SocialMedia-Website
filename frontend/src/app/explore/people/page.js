@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import api from '@/lib/axios'
 import { Eye, Plus } from 'lucide-react'
 
-
+import Link from 'next/link'
 const page = () => {
   const [users, setUsers] = useState([])
   const [usersLoading, setUsersLoading] = useState(true)
@@ -67,9 +67,12 @@ const page = () => {
                   <button className="text-xs px-4 py-1.5 rounded-md bg-zinc-800 text-white border border-zinc-700 hover:bg-white hover:text-black transition-all duration-200">
                     <Plus size={16}/>
                   </button>
-                  <button className="text-xs px-4 py-1.5 rounded-md bg-zinc-800 text-white border border-zinc-700 hover:bg-white hover:text-black transition-all duration-200">
+                  <Link href={`/profile/${user._id}`} className="text-xs px-4 py-1.5 rounded-md bg-zinc-800 text-white border border-zinc-700 hover:bg-white hover:text-black transition-all duration-200">
+                     <Eye size={16}/>
+                  </Link>
+                  {/* <button className="text-xs px-4 py-1.5 rounded-md bg-zinc-800 text-white border border-zinc-700 hover:bg-white hover:text-black transition-all duration-200">
                     <Eye size={16}/>
-                  </button>
+                  </button> */}
                 </div>
               </div>
             ))
