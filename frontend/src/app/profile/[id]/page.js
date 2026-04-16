@@ -5,7 +5,6 @@ import { PencilIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/context/AuthContext"
 import { useRouter } from "next/navigation"
-import { use } from "react"
 import {
   Dialog,
   DialogContent,
@@ -19,20 +18,27 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { SKILLS } from "@/constants/skills"
-
+import { use } from "react"
 const Profile = ({ params }) => {
-  const { id } = use(params)
+  const resolvedParams = use(params)
+  const { id } = resolvedParams
 
   const [user, setUser] = useState(null)
-  const [formData,setFormData] = useState({
-    bio:user.bio,
-    skills:user.skills,
-    contactLinks:{
-      github:user.github,
-      linkedIn:user.linkedIn,
-      discord:user.discord
+  const [formData, setFormData] = useState({
+    bio: "",
+    skills: [],
+    contactLinks: {
+      github: "",
+      linkedIn: "",
+      discord: "",
+      customLinks: [
+        { label: "", url: "" },
+        { label: "", url: "" },
+        { label: "", url: "" }
+      ]
     }
   })
+
   const { user: currentUser, loading } = useAuth()
   const router = useRouter()
 
@@ -47,7 +53,28 @@ const Profile = ({ params }) => {
     if (!loading && !currentUser) {
       router.replace("/login")
     }
-  }, [loading, currentUser])
+  }, [loading, currentUser, router])
+
+  useEffect(() => {
+    if (user) {
+      const existing = user?.contactLinks?.customLinks || []
+      const filled = [...existing]
+      while (filled.length < 3) {
+        filled.push({ label: "", url: "" })
+      }
+
+      setFormData({
+        bio: user.bio || "",
+        skills: user.skills || [],
+        contactLinks: {
+          github: user.contactLinks?.github || "",
+          linkedIn: user.contactLinks?.linkedIn || "",
+          discord: user.contactLinks?.discord || "",
+          customLinks: filled.slice(0, 3)
+        }
+      })
+    }
+  }, [user])
 
   useEffect(() => {
     if (loading) return
@@ -118,11 +145,11 @@ const Profile = ({ params }) => {
             </div>
 
             <h1 className="mt-4 text-2xl font-semibold">
-              {user.userName}
+              {user?.userName}
             </h1>
 
             <p className="text-zinc-400 text-sm">
-              {user.firstName} {user.lastName}
+              {user?.firstName} {user?.lastName}
             </p>
 
             <div className="flex gap-6 mt-4 text-sm">
@@ -141,7 +168,7 @@ const Profile = ({ params }) => {
             </div>
 
             <p className="mt-4 text-center text-zinc-300 max-w-xl">
-              {user.bio || "No bio available"}
+              {user?.bio || "No bio available"}
             </p>
           </div>
 
@@ -169,21 +196,13 @@ const Profile = ({ params }) => {
 
             <div className="flex flex-col gap-2 text-sm">
               {user?.contactLinks?.github && (
-                <a
-                  href={user.contactLinks.github}
-                  target="_blank"
-                  className="text-blue-400 hover:underline"
-                >
+                <a href={user.contactLinks.github} target="_blank">
                   GitHub
                 </a>
               )}
 
               {user?.contactLinks?.linkedIn && (
-                <a
-                  href={user.contactLinks.linkedIn}
-                  target="_blank"
-                  className="text-blue-400 hover:underline"
-                >
+                <a href={user.contactLinks.linkedIn} target="_blank">
                   LinkedIn
                 </a>
               )}
@@ -199,7 +218,7 @@ const Profile = ({ params }) => {
         </div>
       </div>
 
-      <DialogContent>
+      <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto" >
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
           <DialogDescription>
@@ -209,8 +228,13 @@ const Profile = ({ params }) => {
 
         <div className="space-y-4">
           <div className="flex flex-col gap-2">
-            <Label className='text-xl'>Bio</Label>
-            <Textarea defaultValue={formData.bio} />
+            <Label className="text-xl">Bio</Label>
+            <Textarea
+              defaultValue={formData?.bio}
+              onChange={(e) =>
+                setFormData({ ...formData, bio: e.target.value })
+              }
+            />
           </div>
 
           <div>
@@ -237,15 +261,12 @@ const Profile = ({ params }) => {
                       onMouseDown={(e) => {
                         e.preventDefault()
                         if (!selectedSkills.includes(skill)) {
-                          setSelectedSkills([
-                            ...selectedSkills,
-                            skill,
-                          ])
+                          setSelectedSkills([...selectedSkills, skill])
                         }
                         setQuery("")
                         setDropdownOpen(false)
                       }}
-                      className="px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                      className="px-3 py-2 cursor-pointer hover:bg-accent"
                     >
                       {skill}
                     </div>
@@ -260,12 +281,9 @@ const Profile = ({ params }) => {
                   <Badge
                     key={skill}
                     variant="outline"
-                    className="cursor-pointer text-xs px-2 py-1"
                     onClick={() =>
                       setSelectedSkills(
-                        selectedSkills.filter(
-                          (s) => s !== skill
-                        )
+                        selectedSkills.filter((s) => s !== skill)
                       )
                     }
                   >
@@ -275,10 +293,9 @@ const Profile = ({ params }) => {
               </div>
             )}
           </div>
-
-
           <div className="flex flex-col gap-3">
             <h3 className='text-center text-xl text-violet-300 font-bold'>Contact Links</h3>
+
             <div className="flex flex-col gap-4">
               <div className=" flex flex-col gap-2">
                 <Label>GitHub</Label>
@@ -289,12 +306,13 @@ const Profile = ({ params }) => {
                   className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none"
                 />
               </div>
+
               <div className=" flex flex-col gap-2">
                 <Label>LinkedIn</Label>
                 <input
                   type="text"
-                  defaultValue={user?.contactLinks?.linkedin}
-                  placeholder="GitHub URL"
+                  defaultValue={user?.contactLinks?.linkedIn}
+                  placeholder="LinkedIn URL"
                   className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none"
                 />
               </div>
@@ -304,10 +322,55 @@ const Profile = ({ params }) => {
                 <input
                   type="text"
                   defaultValue={user?.contactLinks?.discord}
-                  placeholder="GitHub URL"
+                  placeholder="Discord URL"
                   className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none"
                 />
               </div>
+            </div>
+
+            <h3 className='text-center text-xl text-violet-300 font-bold'>Add Custom Links</h3>
+
+            <div className="flex flex-col gap-3">
+              {formData.contactLinks.customLinks.map((link, index) => (
+                <div key={index} className="flex gap-2">
+                  <input
+                    placeholder="Label"
+                    value={link.label}
+                    onChange={(e) => {
+                      const updated = [...formData.contactLinks.customLinks]
+                      updated[index].label = e.target.value
+
+                      setFormData({
+                        ...formData,
+                        contactLinks: {
+                          ...formData.contactLinks,
+                          customLinks: updated
+                        }
+                      })
+                    }}
+                    className="w-1/3 border border-border rounded px-2 py-1"
+                  />
+
+                  <input
+                    placeholder="URL"
+                    value={link.url}
+                    onChange={(e) => {
+                      const updated = [...formData.contactLinks.customLinks]
+                      updated[index].url = e.target.value
+
+                      setFormData({
+                        ...formData,
+                        contactLinks: {
+                          ...formData.contactLinks,
+                          customLinks: updated
+                        }
+                      })
+                    }}
+                    className="w-full border border-border rounded px-2 py-1"
+
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -316,7 +379,6 @@ const Profile = ({ params }) => {
           <Button>Save</Button>
         </DialogFooter>
       </DialogContent>
-
     </Dialog>
   )
 }

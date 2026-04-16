@@ -55,7 +55,13 @@ const userSchema = new mongoose.Schema({
         email:String,
         discord:String,
         linkedIn:String,
-        github:String
+        github:String,
+        customLink:[
+            {
+                label:String,
+                url:String
+            }
+        ]
     },
 },{timestamps:true})
 

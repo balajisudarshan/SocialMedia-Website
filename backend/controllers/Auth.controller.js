@@ -133,7 +133,10 @@ const updateProfile = async (req, res) => {
             user.skills = skills
         }
         if (contactLinks !== undefined) {
-            user.contactLinks = contactLinks
+            user.contactLinks = {
+                ...user.contactLinks,
+                ...contactLinks
+            }
         }
         await user.save();
 
