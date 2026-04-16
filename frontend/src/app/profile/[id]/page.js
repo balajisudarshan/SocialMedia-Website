@@ -304,6 +304,12 @@ const Profile = ({ params }) => {
                   defaultValue={user?.contactLinks?.github}
                   placeholder="GitHub URL"
                   className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none"
+                  onChange={(e)=>{
+                    setFormData({...formData,contactLinks:{
+                      ...formData.contactLinks,
+                      github: e.target.value
+                    }})
+                  }}
                 />
               </div>
 
@@ -314,6 +320,12 @@ const Profile = ({ params }) => {
                   defaultValue={user?.contactLinks?.linkedIn}
                   placeholder="LinkedIn URL"
                   className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none"
+                  onChange={(e)=>{
+                    setFormData({...formData,contactLinks:{
+                      ...formData.contactLinks,
+                      linkedIn: e.target.value
+                    }})
+                  }}
                 />
               </div>
 
@@ -324,6 +336,12 @@ const Profile = ({ params }) => {
                   defaultValue={user?.contactLinks?.discord}
                   placeholder="Discord URL"
                   className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none"
+                  onChange={(e)=>{
+                    setFormData({...formData,contactLinks:{
+                      ...formData.contactLinks,
+                      discord: e.target.value
+                    }})
+                  }}
                 />
               </div>
             </div>
@@ -376,7 +394,9 @@ const Profile = ({ params }) => {
         </div>
 
         <DialogFooter>
-          <Button>Save</Button>
+          <Button onClick={()=>{
+            console.log(formData)
+          }}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
