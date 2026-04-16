@@ -244,7 +244,7 @@ export default function Navbar() {
               <DropdownMenu>
 
                 <DropdownMenuTrigger asChild>
-
+                    {/* {console.log("User" + user.user)} */}
                   <Avatar className="cursor-pointer">
                     <AvatarImage src={user.user.profilePic} />
                     <AvatarFallback>
@@ -257,7 +257,7 @@ export default function Navbar() {
                 <DropdownMenuContent align="end">
 
                   <DropdownMenuItem asChild>
-                    <Link href={`/profile/${user.user.userName}`}>
+                    <Link href={`/profile/${user.user._id}`}>
                       My Profile
                     </Link>
                   </DropdownMenuItem>

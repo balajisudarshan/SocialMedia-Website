@@ -8,6 +8,7 @@ import { SKILLS } from "@/constants/skills"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
 import { toast } from "sonner"
+import { Github, Linkedin } from "lucide-react"
 export default function Register() {
   const [formData, setFormData] = useState({
     userName: "",
@@ -260,8 +261,8 @@ export default function Register() {
             </legend>
 
             {[
-              { name: "github", label: "GitHub URL", icon: "⌥" },
-              { name: "linkedIn", label: "LinkedIn URL", icon: "in" },
+              { name: "github", label: "GitHub URL", icon: <Github/> },
+              { name: "linkedIn", label: "LinkedIn URL", icon: <Linkedin/> },
               { name: "discord", label: "Discord Username", icon: "#" }
             ].map(({ name, label, icon }) => (
               <div key={name} className="relative flex items-center">
