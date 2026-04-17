@@ -4,32 +4,47 @@ import api from "@/lib/axios"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 const Page = () => {
   const [requests, setRequests] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [processingId, setProcessingId] = useState(null)
 
   useEffect(() => {
     const fetchReq = async () => {
       try {
         const res = await api.get("/connection/getMyRequests")
         setRequests(res.data.requests)
-        console.log(res.data.requests)
+        console.log("Requestes",res.data.requests)
       } catch (error) {
         console.log(error)
+        toast.error("Failed to load requests")
       }
     }
     fetchReq()
   }, [])
 
 
-  const manageRequest = async (type, id) => {
-    try {
-      const result = await api.patch(`/project/request/${id}/${type}`)
-      console.log(result)
-    } catch (error) {
-      console.error(error)
-    }
-    }
+ const manageRequest = async (type, id) => {
+  setProcessingId(id)
+  try {
+    const result = await api.patch(`/connection/request/${id}/${type}`)
+    console.log(result.data)
+    toast.success(`Request ${type}ed successfully!`)
+    setRequests(prev => prev.filter(req => req._id !== id))
+  } catch (error) {
+    console.error("Full error:", error)
+    const message = error?.response?.data?.message || "Failed to manage request"
+    const details = error?.response?.data?.error || error?.response?.data?.details || error?.message || ""
+    const fullError = details ? `${message}: ${details}` : message
+    console.error(fullError)
+    toast.error(fullError)
+  } finally {
+    setProcessingId(null)
+  }
+}
   
   return (
     <div className="min-h-screen bg-background px-6 py-10">
@@ -86,15 +101,23 @@ const Page = () => {
                   <Button
                     variant="outline"
                     className="cursor-pointer"
+                    disabled={processingId === request._id}
                     onClick={() => manageRequest("reject", request._id)}
                   >
+                    {processingId === request._id ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : null}
                     Reject
                   </Button>
 
                   <Button
                     className="cursor-pointer"
+                    disabled={processingId === request._id}
                     onClick={() => manageRequest("accept", request._id)}
                   >
+                    {processingId === request._id ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : null}
                     Accept
                   </Button>
                 </div>

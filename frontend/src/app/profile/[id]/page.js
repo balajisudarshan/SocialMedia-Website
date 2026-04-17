@@ -45,6 +45,7 @@ const Profile = ({ params }) => {
   const [query, setQuery] = useState("")
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [selectedSkills, setSelectedSkills] = useState([])
+  const [connections,setConnections] = useState([])
   const dropdownRef = useRef(null)
 
   const isMine = currentUser?.user?._id === user?._id
@@ -82,7 +83,8 @@ const Profile = ({ params }) => {
       try {
         const res = await api.get(`/user/${id}`)
         setUser(res.data.user)
-        console.log(res.data.user)
+        console.log("Response USer :" ,res.data.user)
+        console.log("Current User : ", currentUser?.user)
       } catch (err) {
         console.log(err)
       }
@@ -106,6 +108,17 @@ const Profile = ({ params }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  useEffect(()=>{
+    const fetchConnections = async()=>{
+      try {
+        const res = await api.get("/connection/my")
+        console.log("Connections : ", res.data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchConnections()
+  },[user])
   const filteredSkills = SKILLS.filter(
     (skill) =>
       skill.toLowerCase().includes(query.toLowerCase()) &&
@@ -113,8 +126,8 @@ const Profile = ({ params }) => {
   )
   const submitDetails = async () => {
     try {
-      const cleanedLinks = formData.contactLinks.customLinks  .filter(
-        (link)=>link.label.trim() !== "" && link.url.trim() !== ""
+      const cleanedLinks = formData.contactLinks.customLinks.filter(
+        (link) => link.label.trim() !== "" && link.url.trim() !== ""
       );
 
       const payload = {
@@ -252,7 +265,7 @@ const Profile = ({ params }) => {
             <h2 className="text-lg font-semibold mb-3">Other Links</h2>
             {user?.contactLinks?.customLink && user?.contactLinks?.customLink?.length > 0 &&
               user?.contactLinks?.customLink.map((link, index) => (
-                
+
                 <div className="flex flex-row gap-2">
                   <p>{link?.label} : </p>
                   <a href={link.url} className="text-blue-400 underline">{link.url}</a>
@@ -260,6 +273,16 @@ const Profile = ({ params }) => {
               ))
             }
           </div>
+        </div>
+
+        <div className="mt-10 pb-30 mx-60  ">
+          {!isMine && (
+            <div className="flex justify-end items-center">
+              <Button className=" bottom-4 right-4">
+                Connect
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 

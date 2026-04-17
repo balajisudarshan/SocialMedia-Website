@@ -94,7 +94,7 @@ const manageConnection = async (req, res) => {
         await Notification.create({
             receiver: request.sender,
             sender: userId,
-            type: "connection_accepted",
+            type: "connection_request_accepted",
             message: "Your connection request has been accepted",
         })
         await request.save()
@@ -113,7 +113,12 @@ const manageConnection = async (req, res) => {
         res.status(200).json({ message: "Connection accepted" })
 
     } catch (error) {
-        console.log(error)
+        console.error("Error in manageConnection:", error)
+        res.status(500).json({ 
+            message: "Failed to manage connection",
+            error: error.message,
+            details: error.toString()
+        })
     }
 }
 const removeConnection = async (req, res) => {
@@ -143,7 +148,7 @@ const removeConnection = async (req, res) => {
     } catch (err) {
         console.log(err)
     }
-}
+}   
 
 const getMyConnections = async (req, res) => {
     try {
