@@ -82,6 +82,7 @@ const Profile = ({ params }) => {
       try {
         const res = await api.get(`/user/${id}`)
         setUser(res.data.user)
+        console.log(res.data.user)
       } catch (err) {
         console.log(err)
       }
@@ -110,6 +111,31 @@ const Profile = ({ params }) => {
       skill.toLowerCase().includes(query.toLowerCase()) &&
       !selectedSkills.includes(skill)
   )
+  const submitDetails = async () => {
+    try {
+      const cleanedLinks = formData.contactLinks.customLinks  .filter(
+        (link)=>link.label.trim() !== "" && link.url.trim() !== ""
+      );
+
+      const payload = {
+        bio: formData.bio,
+        skills: selectedSkills,
+        contactLinks: {
+          github: formData.contactLinks.github,
+          linkedIn: formData.contactLinks.linkedIn,
+          discord: formData.contactLinks.discord,
+          customLink: cleanedLinks
+        }
+
+      }
+      console.log("Payload : ", payload)
+      const res = await api.put(`/auth/update/`, payload)
+      console.log(res.data)
+      setUser(res.data.user)
+    } catch (error) {
+      console.error("Error updating user details:", error)
+    }
+  }
 
   if (!user) {
     return (
@@ -196,15 +222,21 @@ const Profile = ({ params }) => {
 
             <div className="flex flex-col gap-2 text-sm">
               {user?.contactLinks?.github && (
-                <a href={user.contactLinks.github} target="_blank">
-                  GitHub
-                </a>
+                <div className="flex flex-row gap-2">
+                  <p>Github : </p>
+                  <a href={user.contactLinks.github} className="text-blue-400 underline" target="_blank">
+                    {user.contactLinks.github}
+                  </a>
+                </div>
               )}
 
               {user?.contactLinks?.linkedIn && (
-                <a href={user.contactLinks.linkedIn} target="_blank">
-                  LinkedIn
-                </a>
+                <div className="flex flex-row gap-2">
+                  <p>LinkedIn : </p>
+                  <a href={user.contactLinks.linkedIn} className="text-blue-400 underline" target="_blank">
+                    {user.contactLinks.linkedIn}
+                  </a>
+                </div>
               )}
 
               {!user?.contactLinks?.github &&
@@ -214,6 +246,19 @@ const Profile = ({ params }) => {
                   </p>
                 )}
             </div>
+          </div>
+
+          <div className="mt-10 border-t border-zinc-800 pt-6">
+            <h2 className="text-lg font-semibold mb-3">Other Links</h2>
+            {user?.contactLinks?.customLink && user?.contactLinks?.customLink?.length > 0 &&
+              user?.contactLinks?.customLink.map((link, index) => (
+                
+                <div className="flex flex-row gap-2">
+                  <p>{link?.label} : </p>
+                  <a href={link.url} className="text-blue-400 underline">{link.url}</a>
+                </div>
+              ))
+            }
           </div>
         </div>
       </div>
@@ -304,11 +349,13 @@ const Profile = ({ params }) => {
                   defaultValue={user?.contactLinks?.github}
                   placeholder="GitHub URL"
                   className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none"
-                  onChange={(e)=>{
-                    setFormData({...formData,contactLinks:{
-                      ...formData.contactLinks,
-                      github: e.target.value
-                    }})
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData, contactLinks: {
+                        ...formData.contactLinks,
+                        github: e.target.value
+                      }
+                    })
                   }}
                 />
               </div>
@@ -320,11 +367,13 @@ const Profile = ({ params }) => {
                   defaultValue={user?.contactLinks?.linkedIn}
                   placeholder="LinkedIn URL"
                   className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none"
-                  onChange={(e)=>{
-                    setFormData({...formData,contactLinks:{
-                      ...formData.contactLinks,
-                      linkedIn: e.target.value
-                    }})
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData, contactLinks: {
+                        ...formData.contactLinks,
+                        linkedIn: e.target.value
+                      }
+                    })
                   }}
                 />
               </div>
@@ -336,11 +385,13 @@ const Profile = ({ params }) => {
                   defaultValue={user?.contactLinks?.discord}
                   placeholder="Discord URL"
                   className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground outline-none"
-                  onChange={(e)=>{
-                    setFormData({...formData,contactLinks:{
-                      ...formData.contactLinks,
-                      discord: e.target.value
-                    }})
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData, contactLinks: {
+                        ...formData.contactLinks,
+                        discord: e.target.value
+                      }
+                    })
                   }}
                 />
               </div>
@@ -394,8 +445,9 @@ const Profile = ({ params }) => {
         </div>
 
         <DialogFooter>
-          <Button onClick={()=>{
+          <Button onClick={() => {
             console.log(formData)
+            submitDetails()
           }}>Save</Button>
         </DialogFooter>
       </DialogContent>
